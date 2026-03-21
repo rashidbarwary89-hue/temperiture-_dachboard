@@ -4,149 +4,36 @@
 <meta charset="UTF-8">
 <title>Alarm Status Dashboard</title>
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-
 <style>
-body {
-  font-family: Arial;
-  text-align:center;
-  padding:2rem;
-  background:#f5f7fa;
-}
-
-h1 {
-  margin-bottom: 1rem;
-}
-
-.status {
-  font-size:3rem;
-  margin-top:2rem;
-  padding:1.5rem;
-  border-radius:15px;
-  color:white;
-  transition:0.3s;
-}
-
-.on {
-  background:#4caf50;
-  animation: blink 1s infinite;
-}
-
-.off {
-  background:#f44336;
-}
-
-.info {
-  margin-top:1rem;
-  color:#555;
-}
-
-.connection {
-  margin-top:1rem;
-  font-weight:bold;
-}
-
-.connected { color:green; }
-.disconnected { color:red; }
-
-@keyframes blink {
-  50% { opacity: 0.5; }
-}
+body { font-family: Arial; text-align:center; padding:2rem; background:#f5f7fa; }
+.status { font-size:3rem; color:#ff5722; margin-top:2rem; }
 </style>
 </head>
-
 <body>
 
 <h1>حالة التنبيه</h1>
-
-<div class="status off" id="status">OFF</div>
-
-<div class="connection disconnected" id="connection">
-🔌 Disconnected
-</div>
-
-<div class="info" id="lastUpdate">
-Last update: --
-</div>
-
-<audio id="alarmSound">
-  <source src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg">
-</audio>
+<div class="status" id="status">OFF</div>
 
 <script>
-// 🔴 MQTT CONFIG (Use secure method in production)
 const broker = 'wss://86f877dc676a4a38ae375ce047154e63.s1.eu.hivemq.cloud:8884/mqtt';
-
 const client = mqtt.connect(broker, {
   username: 'Rasheed',
   password: 'Rasheed1989',
-  reconnectPeriod: 2000
+  reconnectPeriod: 1000
 });
 
 const topicAlarm = 'rasheed';
 
-const statusEl = document.getElementById("status");
-const connectionEl = document.getElementById("connection");
-const lastUpdateEl = document.getElementById("lastUpdate");
-const sound = document.getElementById("alarmSound");
-
-// 🔌 Connection events
 client.on('connect', () => {
-  connectionEl.innerText = "🟢 Connected";
-  connectionEl.className = "connection connected";
+  console.log("Connected to HiveMQ Cloud via WSS");
   client.subscribe(topicAlarm);
 });
 
-client.on('offline', () => {
-  connectionEl.innerText = "🔴 Disconnected";
-  connectionEl.className = "connection disconnected";
-});
-
-client.on('reconnect', () => {
-  connectionEl.innerText = "🟡 Reconnecting...";
-});
-
-client.on('error', (err) => {
-  console.error("MQTT Error:", err);
-});
-
-// 📩 Message handling
 client.on('message', (topic, message) => {
   if(topic === topicAlarm){
-    const value = message.toString().toUpperCase();
-
-    // Update UI
-    statusEl.innerText = value;
-    statusEl.className = "status " + (value === "ON" ? "on" : "off");
-
-    // Play sound if ON
-    if(value === "ON"){
-      sound.play().catch(() => {});
-    }
-
-    // Update timestamp
-    const now = new Date().toLocaleString();
-    lastUpdateEl.innerText = "Last update: " + now;
-
-    // Save state
-    localStorage.setItem("alarmState", value);
-    localStorage.setItem("alarmTime", now);
+    document.getElementById("status").innerText = message.toString();
   }
 });
-
-// 🔄 Load last state on refresh
-window.onload = () => {
-  const savedState = localStorage.getItem("alarmState");
-  const savedTime = localStorage.getItem("alarmTime");
-
-  if(savedState){
-    statusEl.innerText = savedState;
-    statusEl.className = "status " + (savedState === "ON" ? "on" : "off");
-  }
-
-  if(savedTime){
-    lastUpdateEl.innerText = "Last update: " + savedTime;
-  }
-};
 </script>
 
 </body>
