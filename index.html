@@ -15,7 +15,7 @@ body { font-family: Arial; text-align:center; padding:2rem; background:#f5f7fa; 
 <div class="status" id="status">OFF</div>
 
 <script>
-const broker = '86f877dc676a4a38ae375ce047154e63.s1.eu.hivemq.cloud:8883';
+const broker = 'wss://86f877dc676a4a38ae375ce047154e63.s1.eu.hivemq.cloud:8884/mqtt';
 const client = mqtt.connect(broker, {
   username: 'Rasheed',
   password: 'Rasheed1989',
@@ -25,7 +25,7 @@ const client = mqtt.connect(broker, {
 const topicAlarm = 'rasheed';
 
 client.on('connect', () => {
-  console.log("Connected to HiveMQ Cloud");
+  console.log("Connected to HiveMQ Cloud via WSS");
   client.subscribe(topicAlarm);
 });
 
