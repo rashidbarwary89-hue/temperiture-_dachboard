@@ -145,14 +145,15 @@ client.on('message', (topic, message) => {
 
     console.log("rain JSON:", data.rain);
 
-    if (data.rain === "ON" || data.rain === true || data.rain === "1") {
-      rainText.innerText = "Rain Detected";
-      rainIcon.src = rainSVG;
-      rainBox.className = "rain on";
-    } else {
-      rainText.innerText = "No Rain";
+    if (data.rain === "ON" || data.rain === true || data.rain === "1" || data.rain === 1) {
+       rainText.innerText = "No Rain";
       rainIcon.src = noRainSVG;
       rainBox.className = "rain off";
+   
+    } else {
+        rainText.innerText = "Rain Detected";
+      rainIcon.src = rainSVG;
+      rainBox.className = "rain on";
     }
 
   } catch (e) {
