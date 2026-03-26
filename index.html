@@ -59,6 +59,13 @@ body {
   font-weight: bold;
 }
 
+.rain img {
+  display: block;
+  margin: 0 auto 8px auto;
+  width: 60px;
+  height: 60px;
+}
+
 .on {
   background: #16a34a;
 }
@@ -84,7 +91,10 @@ body {
     <div class="value" id="humidity">--</div>
   </div>
 
-  <div id="rain" class="rain off">Rain: OFF</div>
+  <div id="rain" class="rain off">
+    <img id="rainIcon" src="" alt="rain status">
+    <div id="rainText">No Rain</div>
+  </div>
 </div>
 
 <script>
@@ -102,6 +112,26 @@ client.on('connect', () => {
   client.subscribe(topic);
 });
 
+// SVG Icons (inline, no external files needed)
+const rainSVG = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 64 64">
+  <path fill="#60a5fa" d="M20 50c-6 0-10-4-10-10s4-10 10-10c1 0 2 0 3 .3C25 24 30 20 36 20c8 0 14 6 14 14 4 1 8 5 8 10 0 6-5 10-10 10H20z"/>
+  <path fill="#3b82f6" d="M22 54v6M30 54v6M38 54v6M46 54v6"/>
+</svg>
+`);
+
+const noRainSVG = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 64 64">
+  <circle cx="32" cy="32" r="14" fill="#fbbf24"/>
+  <g stroke="#f59e0b" stroke-width="3">
+    <line x1="32" y1="4" x2="32" y2="0"/>
+    <line x1="32" y1="64" x2="32" y2="60"/>
+    <line x1="4" y1="32" x2="0" y2="32"/>
+    <line x1="64" y1="32" x2="60" y2="32"/>
+  </g>
+</svg>
+`);
+
 client.on('message', (topic, message) => {
   try {
     const data = JSON.parse(message.toString());
@@ -110,13 +140,18 @@ client.on('message', (topic, message) => {
     document.getElementById("humidity").innerText = data.humidity + " %";
 
     const rainBox = document.getElementById("rain");
+    const rainIcon = document.getElementById("rainIcon");
+    const rainText = document.getElementById("rainText");
+
     console.log("rain JSON:", data.rain);
-    
+
     if (data.rain === "ON" || data.rain === true || data.rain === "1") {
-      rainBox.innerText = "Rain: ON";
+      rainText.innerText = "Rain Detected";
+      rainIcon.src = rainSVG;
       rainBox.className = "rain on";
     } else {
-      rainBox.innerText = "Rain: OFF";
+      rainText.innerText = "No Rain";
+      rainIcon.src = noRainSVG;
       rainBox.className = "rain off";
     }
 
