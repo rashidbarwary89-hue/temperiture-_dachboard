@@ -110,7 +110,8 @@ client.on('message', (topic, message) => {
     document.getElementById("humidity").innerText = data.humidity + " %";
 
     const rainBox = document.getElementById("rain");
-
+    console.log("rain JSON:", data.rain);
+    
     if (data.rain === "ON" || data.rain === true || data.rain === "1") {
       rainBox.innerText = "Rain: ON";
       rainBox.className = "rain on";
