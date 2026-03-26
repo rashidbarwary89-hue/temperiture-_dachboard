@@ -111,7 +111,7 @@ client.on('message', (topic, message) => {
 
     const rainBox = document.getElementById("rain");
 
-    if (data.rain === "ON" || data.rain === true) {
+    if (data.rain === "ON" || data.rain === true || data.rain === "1") {
       rainBox.innerText = "Rain: ON";
       rainBox.className = "rain on";
     } else {
