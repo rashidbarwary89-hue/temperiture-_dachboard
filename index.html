@@ -1,31 +1,126 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Alarm Status Dashboard</title>
+<title>Sensor Dashboard</title>
+
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0f172a;
+  font-family: Arial, sans-serif;
+}
+
+.card {
+  background: #111827;
+  padding: 25px;
+  border-radius: 20px;
+  width: 280px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  color: white;
+}
+
+.title {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #38bdf8;
+  text-align: center;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  padding: 8px;
+  background: #1f2937;
+  border-radius: 10px;
+}
+
+.label {
+  color: #9ca3af;
+}
+
+.value {
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.rain {
+  text-align: center;
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+.on {
+  background: #16a34a;
+}
+
+.off {
+  background: #dc2626;
+}
+</style>
 </head>
+
 <body>
 
-<div class="status" id="status">OFF</div>
+<div class="card">
+  <div class="title">🌡 Sensor Dashboard</div>
+
+  <div class="item">
+    <div class="label">Temperature</div>
+    <div class="value" id="temp">--</div>
+  </div>
+
+  <div class="item">
+    <div class="label">Humidity</div>
+    <div class="value" id="humidity">--</div>
+  </div>
+
+  <div id="rain" class="rain off">Rain: OFF</div>
+</div>
 
 <script>
 const broker = 'wss://86f877dc676a4a38ae375ce047154e63.s1.eu.hivemq.cloud:8884/mqtt';
+
 const client = mqtt.connect(broker, {
   username: 'Rasheed',
   password: 'Rasheed1989',
   reconnectPeriod: 1000
 });
 
-const topicAlarm = 'rasheed';
+const topic = 'rasheed';
 
 client.on('connect', () => {
-  client.subscribe(topicAlarm);
+  client.subscribe(topic);
 });
 
 client.on('message', (topic, message) => {
-  if(topic === topicAlarm){
-    document.getElementById("status").innerText = message.toString();
+  try {
+    const data = JSON.parse(message.toString());
+
+    document.getElementById("temp").innerText = data.temp + " °C";
+    document.getElementById("humidity").innerText = data.humidity + " %";
+
+    const rainBox = document.getElementById("rain");
+
+    if (data.rain === "ON" || data.rain === true) {
+      rainBox.innerText = "Rain: ON";
+      rainBox.className = "rain on";
+    } else {
+      rainBox.innerText = "Rain: OFF";
+      rainBox.className = "rain off";
+    }
+
+  } catch (e) {
+    console.log("Invalid JSON:", message.toString());
   }
 });
 </script>
